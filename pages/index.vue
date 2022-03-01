@@ -143,7 +143,6 @@ export default {
   fetchDelay: 1000,
   watch: {
     searchInput() {
-      console.log(this.searchInput)
     },
   },
 
