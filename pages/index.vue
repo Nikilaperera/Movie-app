@@ -1,13 +1,14 @@
 <template>
   <div class="home">
+    <!-- Hero -->
     <Hero />
 
-    <!-- search bar -->
+    <!-- Search -->
     <div class="container search">
       <input
         v-model.lazy="searchInput"
         type="text"
-        placeholder="Search..."
+        placeholder="Search"
         @keyup.enter="$fetch"
       />
       <button v-show="searchInput !== ''" class="button" @click="clearSearch">
@@ -15,11 +16,12 @@
       </button>
     </div>
 
-    <!-- loading -->
-    <Loading v-if="$fetchState.pending"/>
+    <!-- Loading Animation -->
+    <Loading v-if="$fetchState.pending" />
 
+    <!-- Movies -->
     <div v-else class="container movies">
-      <!-- searched movies -->
+      <!-- Search Results -->
       <div v-if="searchInput !== ''" id="movie-grid" class="movies-grid">
         <div
           v-for="(movie, index) in searchedMovies"
@@ -51,13 +53,15 @@
             </p>
             <NuxtLink
               class="button button-light"
-              :to="{ name: 'movies-movieid', params: { movieid: movie.id } }"
+              :to="{ name: 'movies-id', params: { id: movie.id } }"
             >
-              > Get more info
+              Get More Info
             </NuxtLink>
           </div>
         </div>
       </div>
+
+      <!-- Now Streaming  -->
       <div v-else id="movie-grid" class="movies-grid">
         <div v-for="(movie, index) in movies" :key="index" class="movie">
           <div class="movie-img">
@@ -85,9 +89,9 @@
             </p>
             <NuxtLink
               class="button button-light"
-              :to="{ name: 'movies-movieid', params: { movieid: movie.id } }"
+              :to="{ name: 'movies-movieid', params: { id: movie.id } }"
             >
-              > Get more info
+              Get More Info
             </NuxtLink>
           </div>
         </div>
@@ -100,36 +104,60 @@
 import axios from 'axios'
 export default {
   name: 'Home',
+
   data() {
     return {
       movies: [],
-      searchInput: '',
       searchedMovies: [],
+      searchInput: '',
     }
   },
+
   async fetch() {
     if (this.searchInput === '') {
       await this.getMovies()
       return
     }
+
     if (this.searchInput !== '') {
       await this.searchMovies()
     }
   },
+  head() {
+    return {
+      title: 'Movie App - Latest Streaming Movie Info',
+      meta: [
+        {
+          hid: 'description',
+          name: 'description',
+          content: 'Get all the latest streaming movies in theaters & online',
+        },
+        {
+          hid: 'keywords',
+          name: 'keywords',
+          content: 'movies, stream, stremaing',
+        },
+      ],
+    }
+  },
   fetchDelay: 1000,
+  watch: {
+    searchInput() {
+      console.log(this.searchInput)
+    },
+  },
+
   methods: {
-    // eslint-disable-next-line require-await
     async getMovies() {
-      // eslint-disable-next-line no-unused-vars
       const data = axios.get(
-        'https://api.themoviedb.org/3/movie/now_playing?api_key=37ed43a4f8eaa2abd75f9283692947bc&language=en-US&page=1'
+        `https://api.themoviedb.org/3/movie/now_playing?api_key=37ed43a4f8eaa2abd75f9283692947bc&language=en-US&page=1`
       )
       const result = await data
       result.data.results.forEach((movie) => {
         this.movies.push(movie)
       })
-      console.log('hi')
     },
+
     async searchMovies() {
       const data = axios.get(
         `https://api.themoviedb.org/3/search/movie?api_key=37ed43a4f8eaa2abd75f9283692947bc&language=en-US&page=1&query=${this.searchInput}`
@@ -139,6 +167,7 @@ export default {
         this.searchedMovies.push(movie)
       })
     },
+
     clearSearch() {
       this.searchInput = ''
       this.searchedMovies = []
@@ -146,6 +175,7 @@ export default {
   },
 }
 </script>
+
 <style lang="scss">
 .home {
   .loading {
